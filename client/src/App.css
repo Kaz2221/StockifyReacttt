@@ -1,0 +1,30 @@
+/* client/src/App.css */
+body {
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    min-height: 100vh;
+    background-color: #111827;
+    scrollbar-width: thin;
+    scrollbar-color: #374151 #1f2937;
+  }
+  
+  /* Style pour les scrollbars (Chrome, Edge, Safari) */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #1f2937;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background-color: #374151;
+    border-radius: 4px;
+  }
+  
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }

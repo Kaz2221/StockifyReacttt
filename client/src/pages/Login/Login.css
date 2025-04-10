@@ -1,0 +1,105 @@
+/* Login.css */
+.login-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #111827;
+    color: #ffffff;
+    position: relative;
+  }
+  
+  .login-box {
+    width: 100%;
+    max-width: 400px;
+    background: #1f2937;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    padding: 2rem;
+    text-align: center;
+    z-index: 2;
+  }
+  
+  #login-header {
+    margin-bottom: 1.5rem;
+  }
+  
+  #login-header .icon {
+    font-size: 2rem;
+    color: #b0bec5;
+    margin-bottom: 10px;
+  }
+  
+  #login-header h1 {
+    font-size: 1.5rem;
+    color: #ffffff;
+    margin-bottom: 5px;
+  }
+  
+  .input-group {
+    position: relative;
+    margin-bottom: 15px;
+  }
+  
+  .input-group input {
+    width: 100%;
+    padding: 10px;
+    background: #374151;
+    border: 1px solid #4b5563;
+    border-radius: 5px;
+    color: #ffffff;
+    font-size: 1rem;
+  }
+  
+  .login-button {
+    width: 100%;
+    padding: 12px;
+    background: #60a5fa;
+    border: none;
+    border-radius: 5px;
+    color: #ffffff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-top: 1rem;
+  }
+  
+  .login-button:hover {
+    background: #2563eb;
+  }
+  
+  .login-footer {
+    margin-top: 1.5rem;
+  }
+  
+  .forgot-password, .create-account {
+    color: #b0bec5;
+    cursor: pointer;
+    transition: color 0.3s;
+    margin-left: 5px;
+  }
+  
+  .forgot-password:hover, .create-account:hover {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+  
+  .error-message {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+  }
+  
+  #mouse-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(circle 150px at 50% 50%, rgba(100, 149, 237, 0.3), transparent);
+    transition: background 0.1s ease-out;
+  }

@@ -1,0 +1,247 @@
+/* src/pages/Expenses/Expenses.css */
+.expenses-page {
+    color: #ffffff;
+  }
+  
+  .expenses-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .add-button {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: 500;
+  }
+  
+  .add-button:hover {
+    background-color: #059669;
+  }
+  
+  .expenses-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-card {
+    background-color: #1f2937;
+    border-radius: 8px;
+    padding: 1.2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .stat-card h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #60a5fa;
+    font-size: 1rem;
+  }
+  
+  .stat-card p {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .expenses-table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .expenses-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #1f2937;
+  }
+  
+  .expenses-table th,
+  .expenses-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #374151;
+  }
+  
+  .expenses-table th {
+    background-color: #111827;
+    font-weight: 600;
+    color: #60a5fa;
+  }
+  
+  .expenses-table tr:hover {
+    background-color: #283548;
+  }
+  
+  .amount-cell {
+    text-align: right;
+    font-weight: 500;
+  }
+  
+  .notes-cell {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .actions-cell {
+    white-space: nowrap;
+  }
+  
+  .edit-button,
+  .delete-button {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .edit-button {
+    background-color: #60a5fa;
+    color: white;
+  }
+  
+  .edit-button:hover {
+    background-color: #3b82f6;
+  }
+  
+  .delete-button {
+    background-color: #ef4444;
+    color: white;
+  }
+  
+  .delete-button:hover {
+    background-color: #dc2626;
+  }
+  
+  .no-data {
+    text-align: center;
+    color: #9ca3af;
+    padding: 2rem !important;
+  }
+  
+  .loading,
+  .error-message {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+  }
+  
+  .error-message {
+    color: #ef4444;
+  }
+  
+  /* Formulaire */
+  .expense-form-container {
+    background-color: #1f2937;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .expense-form-container h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #60a5fa;
+    font-size: 1.25rem;
+  }
+  
+  .expense-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #e5e7eb;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.7rem;
+    background-color: #374151;
+    border: 1px solid #4b5563;
+    border-radius: 5px;
+    color: #ffffff;
+    font-size: 1rem;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #60a5fa;
+  }
+  
+  .form-buttons {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .cancel-button,
+  .save-button {
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: 500;
+  }
+  
+  .cancel-button {
+    background-color: #6b7280;
+    color: white;
+  }
+  
+  .cancel-button:hover {
+    background-color: #4b5563;
+  }
+  
+  .save-button {
+    background-color: #10b981;
+    color: white;
+  }
+  
+  .save-button:hover {
+    background-color: #059669;
+  }
+  
+  @media (max-width: 768px) {
+    .expenses-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .expense-form {
+      grid-template-columns: 1fr;
+    }
+    
+    .form-buttons {
+      justify-content: center;
+    }
+  }

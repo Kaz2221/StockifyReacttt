@@ -1,0 +1,387 @@
+/* src/pages/Sales/Sales.css */
+.sales-page {
+    color: #ffffff;
+  }
+  
+  .sales-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .add-button {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: 500;
+  }
+  
+  .add-button:hover {
+    background-color: #059669;
+  }
+  
+  .sales-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-card {
+    background-color: #1f2937;
+    border-radius: 8px;
+    padding: 1.2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .stat-card h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #60a5fa;
+    font-size: 1rem;
+  }
+  
+  .stat-card p {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .sales-table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+  }
+  
+  .sales-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #1f2937;
+  }
+  
+  .sales-table th,
+  .sales-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #374151;
+  }
+  
+  .sales-table th {
+    background-color: #111827;
+    font-weight: 600;
+    color: #60a5fa;
+  }
+  
+  .sales-table tr:hover {
+    background-color: #283548;
+    cursor: pointer;
+  }
+  
+  .selected-row {
+    background-color: #283548 !important;
+  }
+  
+  .amount-cell {
+    text-align: right;
+    font-weight: 500;
+  }
+  
+  .notes-cell {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .actions-cell {
+    white-space: nowrap;
+  }
+  
+  .edit-button,
+  .delete-button {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .edit-button {
+    background-color: #60a5fa;
+    color: white;
+  }
+  
+  .edit-button:hover {
+    background-color: #3b82f6;
+  }
+  
+  .delete-button {
+    background-color: #ef4444;
+    color: white;
+  }
+  
+  .delete-button:hover {
+    background-color: #dc2626;
+  }
+  
+  .no-data {
+    text-align: center;
+    color: #9ca3af;
+    padding: 2rem !important;
+  }
+  
+  .loading,
+  .error-message {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+  }
+  
+  .error-message {
+    color: #ef4444;
+  }
+  
+  /* Formulaire */
+  .sales-form-container {
+    background-color: #1f2937;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sales-form-container h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #60a5fa;
+    font-size: 1.25rem;
+  }
+  
+  .sales-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .form-group {
+    flex: 1;
+    min-width: 250px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #e5e7eb;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.7rem;
+    background-color: #374151;
+    border: 1px solid #4b5563;
+    border-radius: 5px;
+    color: #ffffff;
+    font-size: 1rem;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #60a5fa;
+  }
+  
+  .sale-items-section {
+    background-color: #283548;
+    border-radius: 5px;
+    padding: 1rem;
+  }
+  
+  .sale-items-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .sale-items-header h3 {
+    margin: 0;
+    color: #60a5fa;
+  }
+  
+  .add-item-button {
+    background-color: #60a5fa;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .add-item-button:hover {
+    background-color: #3b82f6;
+  }
+  
+  .no-items {
+    text-align: center;
+    color: #9ca3af;
+    padding: 1rem;
+  }
+  
+  .sale-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+  
+  .sale-items-table th,
+  .sale-items-table td {
+    padding: 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #374151;
+  }
+  
+  .sale-items-table th {
+    font-weight: 600;
+    color: #60a5fa;
+  }
+  
+  .sale-items-table input,
+  .sale-items-table select {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: #374151;
+    border: 1px solid #4b5563;
+    border-radius: 5px;
+    color: #ffffff;
+  }
+  
+  .remove-item-button {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 0.8rem;
+  }
+  
+  .remove-item-button:hover {
+    background-color: #dc2626;
+  }
+  
+  .total-label {
+    text-align: right;
+    font-weight: 600;
+  }
+  
+  .total-amount {
+    font-weight: 600;
+  }
+  
+  .form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .cancel-button,
+  .save-button {
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: 500;
+  }
+  
+  .cancel-button {
+    background-color: #6b7280;
+    color: white;
+  }
+  
+  .cancel-button:hover {
+    background-color: #4b5563;
+  }
+  
+  .save-button {
+    background-color: #10b981;
+    color: white;
+  }
+  
+  .save-button:hover {
+    background-color: #059669;
+  }
+  
+  /* Détails de la vente */
+  .sale-details-row {
+    background-color: #283548;
+  }
+  
+  .sale-details {
+    padding: 1rem;
+  }
+  
+  .sale-details h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #60a5fa;
+  }
+  
+  .sale-items-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .sale-items-detail-table th,
+  .sale-items-detail-table td {
+    padding: 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #4b5563;
+  }
+  
+  .sale-items-detail-table th {
+    font-weight: 600;
+    color: #60a5fa;
+    background-color: #1f2937;
+  }
+  
+  @media (max-width: 768px) {
+    .sales-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .form-row {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .form-buttons {
+      flex-direction: column;
+    }
+    
+    .form-buttons button {
+      width: 100%;
+    }
+  }

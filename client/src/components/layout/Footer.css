@@ -1,0 +1,45 @@
+/* client/src/components/layout/Footer.css */
+.footer {
+  background-color: #1f2937;
+  color: #e5e7eb;
+  padding: 1rem 0; /* Réduire le padding */
+  width: 100%;
+  font-size: 0.9rem; /* Réduire la taille de la police */
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.footer-section {
+  margin: 0 1rem 0.5rem 0; /* Réduire les marges */
+}
+
+.footer-section h3 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #60a5fa;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 0.3rem; /* Réduit l'espace entre les éléments */
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 0.5rem; /* Réduit le padding */
+  margin-top: 0.5rem; /* Réduit la marge */
+  border-top: 1px solid #374151;
+  font-size: 0.8rem; /* Police plus petite */
+}
