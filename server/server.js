@@ -1,17 +1,26 @@
 // server.js
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const { Pool } = require('pg');
+import express from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
+import pg from "pg";
+import bcrypt from "bcrypt";
+import env from "dotenv";
 
+env.config();
 // Configuration de PostgreSQL
-const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'InventoryManager',
-  password: 'djibril21',
-  port: 5432,
-});
+// Configuration de PostgreSQL
+const db = new pg.Client({   
+  user: process.env.PG_USER,  
+  host: process.env.PG_HOST,  
+  database: process.env.PG_DATABASE,  
+  password: process.env.PG_PASSWORD,   
+  port: process.env.PG_PORT,
+  });
+
+  db.connect()
+  .then(() => console.log("Connected to PostgreSQL"))
+  .catch((err) => console.error("DB connection error:", err));
+
 
 const app = express();
 const port = 5000;
@@ -24,51 +33,76 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // ===== ROUTES POUR LES UTILISATEURS =====
 
 app.post('/api/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    
-    // Vérifier si l'utilisateur existe dans la base de données
-    const result = await pool.query(
-      'SELECT * FROM users WHERE email = $1', 
-      [email]
-    );
-    
-    // Si aucun utilisateur n'est trouvé
-    if (result.rows.length === 0) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Email ou mot de passe incorrect' 
-      });
-    }
-    
-    const user = result.rows[0];
-    
-    // En production, vous devriez utiliser bcrypt pour comparer les mots de passe hachés
-    // Mais pour cet exemple, nous comparons directement (non recommandé en production)
-    if (password !== user.password) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Email ou mot de passe incorrect' 
-      });
-    }
-    
-    // Authentification réussie
-    res.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email
-        // N'incluez pas le mot de passe dans la réponse!
+    try{
+
+      const {email, password} = req.body;
+
+      //Check if user does not  exists
+      const result  = await db.query(
+        'SELECT * FROM users WHERE email = $1', 
+        [email]
+      );
+
+      //If user exists throw back error
+      if(result.rows.length === 0){
+        return res.status(401).json({
+          success: false,
+          message: 'Utilisateur non trouvé'
+        });
       }
-    });
-    
-  } catch (error) {
-    console.error('Erreur de connexion:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Erreur serveur' 
-    });
-  }
+      //IF exists check password
+      const user = result.rows[0];
+      // 2. Compare plaintext password with hashed password using bcrypt
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
+        return res.status(401).json({
+          success: false,
+          message: 'Mot de passe incorrect'
+        });
+      }
+      // 3. If password matches, return user data (excluding password)
+      res.json({
+        success: true,
+        user: {
+          id: user.id,
+          email: user.email
+        }
+      });
+
+    }catch(error){
+      console.error('Erreur de connexion:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erreur serveur'
+      });
+    }
+
+});
+
+app.post('/api/register', async (req, res) => {
+  try{
+  const { email, password, phone_number } = req.body;
+
+      // Check if user already exists
+      const check = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+      if (check.rows.length > 0) {
+        return res.status(400).json({ success: false, message: 'User already exists' });
+      }
+
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+      //Insert new user
+      await db.query(
+        'INSERT INTO users (email, password, phone_number, created_at) VALUES ($1, $2, $3, NOW())',
+        [email, hashedPassword, phone_number]
+      );
+      res.status(201).json({ success: true, message: 'User registered' });
+
+    }catch (err) {
+      console.error('Register error:', err);
+      res.status(500).json({ success: false, message: 'Server error' });
+    }
 });
 
 // ===== ROUTES POUR LES ARTICLES D'INVENTAIRE =====
@@ -77,7 +111,7 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/items', async (req, res) => {
   try {
     // Exécuter la requête pour récupérer tous les articles
-    const result = await pool.query(`
+    const result = await db.query(`
       SELECT 
         id,
         product_name,
@@ -116,7 +150,7 @@ app.post('/api/items', async (req, res) => {
       purchase_date 
     } = req.body;
     
-    const result = await pool.query(
+    const result = await db.query(
       `INSERT INTO items 
        (product_name, description, category, qty, min_qty, price, cost, purchase_date, created_at, updated_at) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) 
@@ -146,7 +180,7 @@ app.put('/api/items/:id', async (req, res) => {
       purchase_date 
     } = req.body;
     
-    const result = await pool.query(
+    const result = await db.query(
       `UPDATE items 
        SET product_name = $1, 
            description = $2, 
@@ -178,7 +212,7 @@ app.delete('/api/items/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const result = await pool.query(
+    const result = await db.query(
       'DELETE FROM items WHERE id = $1 RETURNING *',
       [id]
     );
@@ -199,7 +233,7 @@ app.delete('/api/items/:id', async (req, res) => {
 // Récupérer toutes les dépenses
 app.get('/api/expenses', async (req, res) => {
   try {
-    const result = await pool.query(`
+    const result = await db.query(`
       SELECT 
         id,
         name,
@@ -226,7 +260,7 @@ app.post('/api/expenses', async (req, res) => {
   try {
     const { name, category, amount, expense_date, recurring, recurring_period, notes } = req.body;
     
-    const result = await pool.query(
+    const result = await db.query(
       `INSERT INTO expenses 
        (name, category, amount, expense_date, recurring, recurring_period, notes, created_at) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP) 
@@ -247,7 +281,7 @@ app.put('/api/expenses/:id', async (req, res) => {
     const { id } = req.params;
     const { name, category, amount, expense_date, recurring, recurring_period, notes } = req.body;
     
-    const result = await pool.query(
+    const result = await db.query(
       `UPDATE expenses 
        SET name = $1, 
            category = $2, 
@@ -277,7 +311,7 @@ app.delete('/api/expenses/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const result = await pool.query(
+    const result = await db.query(
       'DELETE FROM expenses WHERE id = $1 RETURNING *',
       [id]
     );
@@ -298,7 +332,7 @@ app.delete('/api/expenses/:id', async (req, res) => {
 // Récupérer toutes les ventes
 app.get('/api/sales', async (req, res) => {
   try {
-    const result = await pool.query(`
+    const result = await db.query(`
       SELECT 
         id,
         user_id,
@@ -320,7 +354,7 @@ app.get('/api/sales', async (req, res) => {
 // Récupérer les articles des ventes
 app.get('/api/sale_items', async (req, res) => {
   try {
-    const result = await pool.query(`
+    const result = await db.query(`
       SELECT 
         si.id,
         si.sale_id,
@@ -345,7 +379,7 @@ app.post('/api/sales', async (req, res) => {
   try {
     const { user_id, total_amount, payment_method, notes } = req.body;
     
-    const result = await pool.query(
+    const result = await db.query(
       `INSERT INTO sales 
        (user_id, sale_date, total_amount, payment_method, notes) 
        VALUES ($1, CURRENT_TIMESTAMP, $2, $3, $4) 
@@ -362,7 +396,7 @@ app.post('/api/sales', async (req, res) => {
 
 // Ajouter un article à une vente
 app.post('/api/sale_items', async (req, res) => {
-  const client = await pool.connect();
+  const client = await db.connect();
   
   try {
     await client.query('BEGIN');
@@ -434,7 +468,7 @@ app.put('/api/sales/:id', async (req, res) => {
     const { id } = req.params;
     const { total_amount, payment_method, notes } = req.body;
     
-    const result = await pool.query(
+    const result = await db.query(
       `UPDATE sales 
        SET total_amount = $1, 
            payment_method = $2, 
@@ -457,7 +491,7 @@ app.put('/api/sales/:id', async (req, res) => {
 
 // Mettre à jour un article de vente
 app.put('/api/sale_items/:id', async (req, res) => {
-  const client = await pool.connect();
+  const client = await db.connect();
   
   try {
     await client.query('BEGIN');
@@ -576,7 +610,7 @@ app.put('/api/sale_items/:id', async (req, res) => {
 
 // Supprimer une vente
 app.delete('/api/sales/:id', async (req, res) => {
-  const client = await pool.connect();
+  const client = await db.connect();
   
   try {
     await client.query('BEGIN');
@@ -633,7 +667,7 @@ app.delete('/api/sales/:id', async (req, res) => {
 
 // Supprimer un article de vente
 app.delete('/api/sale_items/:id', async (req, res) => {
-  const client = await pool.connect();
+  const client = await db.connect();
   
   try {
     await client.query('BEGIN');

@@ -1,5 +1,6 @@
 // Dans client/src/pages/Login/Login.jsx
 import React, { useState } from 'react';
+import { Link } from "react-router-dom";
 // Commentez cette ligne: import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
@@ -82,7 +83,9 @@ function Login() {
         </form>
         
         <div>
-          <p>Pas encore de compte ? <span>Créer un compte</span></p>
+        <p>
+           Pas encore de compte ? <Link to="/register">Créer un compte</Link>
+        </p>
           <span>Mot de passe oublié ?</span>
         </div>
       </div>
