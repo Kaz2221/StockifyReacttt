@@ -41,7 +41,7 @@ export const addSaleItem = async (req, res) => {
       const numQuantity = Number(quantity);
       const numSaleId = Number(sale_id);
       const numUnitPrice = Number(unit_price);
-      
+      console.log(`Ajout d'un article de vente: ${numItemId}, ${numQuantity}, ${numSaleId},${numUnitPrice}`);
       // Vérifier que l'article existe et récupérer des informations
       const itemCheck = await client.query(
         'SELECT qty, product_name, min_qty FROM items WHERE id = $1',
