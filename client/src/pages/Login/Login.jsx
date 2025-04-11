@@ -17,21 +17,28 @@ function Login() {
     setLoading(true);
     
     try {
+      
       const response = await fetch('http://localhost:5000/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // 
         body: JSON.stringify({ email, password }),
       });
       
+      //DEBUG:console.log("HTTP Status:", response.status);
       const data = await response.json();
+      //DEBUG:console.log("Full login response:", data);
       
-      if (response.ok) {
+
+      if (data.success) {
         // Stocker les informations utilisateur dans localStorage
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Au lieu d'utiliser navigate, utilisez window.location
+        localStorage.setItem("token", data.token);
+        console.log("Full login response:", data);
+    
+        // Optionally store user info too
+        localStorage.setItem("user", JSON.stringify(data.user));
         window.location.href = '/dashboard';
       } else {
         setError(data.message || 'Identifiants incorrects');

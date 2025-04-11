@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "./Sales.css";
 
 function Sales() {
+//  console.log("🔥 Sales component is rendering");
   const [sales, setSales] = useState([]);
   const [saleItems, setSaleItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +15,6 @@ function Sales() {
     id: null,
     payment_method: "Credit Card",
     notes: "",
-    user_id: 1,
     items: []
   });
   const [isEditing, setIsEditing] = useState(false);
@@ -24,34 +24,42 @@ function Sales() {
 
   // Charger les ventes depuis le serveur
   useEffect(() => {
-    // Vérifier si l'utilisateur est connecté
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    if (!user) {
-      navigate("/");
-      return;
-    }
-
-    fetchSales();
-    fetchProducts();
+    const fetchData = async () => {
+      try {
+        await fetchSales();
+        await fetchSaleItems();  
+        await fetchProducts();
+      } catch (err) {
+        if (err.message.includes("401")) {
+          navigate("/"); // Redirect to login
+        } else {
+          console.error("Erreur lors du chargement des données:", err);
+        }
+      }
+    };
+  
+    fetchData();
   }, [navigate]);
+  
+  
 
   // Fonction pour récupérer les ventes
   const fetchSales = async () => {
     setLoading(true);
     try {
-      const salesResponse = await fetch("http://localhost:5000/api/sales");
-      const itemsResponse = await fetch("http://localhost:5000/api/sale_items");
-
-      if (!salesResponse.ok || !itemsResponse.ok) {
+      const response = await fetch("http://localhost:5000/api/sales/full", {
+        credentials: "include"
+      });
+  
+      if (!response.ok) {
         throw new Error("Erreur lors de la récupération des ventes");
       }
-
-      const salesData = await salesResponse.json();
-      const itemsData = await itemsResponse.json();
+  
+      const fullSales = await response.json();
+  
+      setSales(fullSales); // fullSales already includes .items[]
+      setSaleItems([]); // ⛔ we no longer need this, but clear it for safety
       
-      setSales(salesData);
-      setSaleItems(itemsData);
     } catch (err) {
       setError(err.message);
       console.error("Erreur:", err);
@@ -59,11 +67,19 @@ function Sales() {
       setLoading(false);
     }
   };
+  //{console.log("📦 sales in return:", sales)}
+
 
   // Fonction pour récupérer les produits
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/items");
+      const response = await fetch("http://localhost:5000/api/items",{
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
       
       if (!response.ok) {
         throw new Error("Erreur lors de la récupération des produits");
@@ -76,9 +92,41 @@ function Sales() {
     }
   };
 
+  const fetchSaleItems = async (saleId) => {
+    try {
+      console.log("🧾 Items being sent with sale:", formData.items);
+      const response = await fetch("http://localhost:5000/api/sale_items", {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Erreur lors de la récupération des articles de vente");
+      }
+  
+      const allItems = await response.json();
+      console.log("✅ saleItemsidid fetched", allItems.saleId); // 🧪 Debug line
+      console.log("✅ saleItems fetched:", allItems); // 🧪 Debug line
+
+      const itemsForSale = allItems.filter(item => Number(item.sale_id) === Number(saleId));
+  
+      // Inject sale items into the form
+      setFormData((prevData) => ({
+        ...prevData,
+        items: itemsForSale
+      }));
+    } catch (err) {
+      console.error("Erreur lors du chargement des articles de la vente:", err);
+    }
+  };
+  
+
   // Sélectionner une vente pour afficher ses détails
   const handleSelectSale = (sale) => {
-    const saleId = Number(sale.id);
+    const saleId = Number(sale.sale_id);
     setSelectedSale(saleId === selectedSale ? null : saleId);
   };
 
@@ -101,82 +149,26 @@ function Sales() {
       const saleData = {
         payment_method: formData.payment_method,
         notes: formData.notes,
-        user_id: formData.user_id,
         total_amount
       };
-
       if (isEditing) {
-        // Mise à jour d'une vente existante
-        const response = await fetch(
-          `http://localhost:5000/api/sales/${formData.id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(saleData),
-          }
-        );
+            // 🔄 1. Update the sale
+          const updatedSale = await updateSale(formData.id, saleData);
 
-        if (!response.ok) {
-          throw new Error("Erreur lors de la mise à jour de la vente");
-        }
+          // ✏️ 2. Update or add sale items
+          await updateSaleItems(updatedSale.sale_id, formData.items);
 
-        const updatedSale = await response.json();
-        
-        // Mettre à jour les articles de la vente
-        await Promise.all(formData.items.map(async (item) => {
-          if (item.id) {
-            // Mettre à jour l'article existant
-            await fetch(`http://localhost:5000/api/sale_items/${item.id}`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                sale_id: updatedSale.id,
-                item_id: item.item_id,
-                quantity: item.quantity,
-                unit_price: item.unit_price
-              }),
-            });
-          } else {
-            // Ajouter un nouvel article
-            await fetch("http://localhost:5000/api/sale_items", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                sale_id: updatedSale.id,
-                item_id: item.item_id,
-                quantity: item.quantity,
-                unit_price: item.unit_price,
-                product_name: item.product_name
-              }),
-            });
-          }
-        }));
+          // 🧹 3. Delete removed items
+          await deleteRemovedItems(updatedSale.sale_id, formData.items, saleItems);
 
-        // Supprimer les articles qui ont été retirés
-        const currentItems = saleItems.filter(item => Number(item.sale_id) === Number(formData.id));
-        const updatedItemIds = formData.items.filter(item => item.id).map(item => Number(item.id));
-        
-        await Promise.all(currentItems.map(async (item) => {
-          if (!updatedItemIds.includes(Number(item.id))) {
-            await fetch(`http://localhost:5000/api/sale_items/${item.id}`, {
-              method: "DELETE",
-            });
-          }
-        }));
-
-        // Mettre à jour l'état local
-        setSales(sales.map(sale => Number(sale.id) === Number(updatedSale.id) ? { ...sale, ...updatedSale } : sale));
-        fetchSales(); // Recharger toutes les données pour mettre à jour les articles
+          // 🆙 4. Update state
+          setSales(sales.map(sale => Number(sale.sale_id) === Number(updatedSale.sale_id) ? { ...sale, ...updatedSale } : sale));
+          fetchSales();
       } else {
         // Ajout d'une nouvelle vente
         const response = await fetch("http://localhost:5000/api/sales", {
           method: "POST",
+          credentials: "include", // 🔐 needed to send JWT cookie
           headers: {
             "Content-Type": "application/json",
           },
@@ -193,11 +185,13 @@ function Sales() {
         await Promise.all(formData.items.map(async (item) => {
           await fetch("http://localhost:5000/api/sale_items", {
             method: "POST",
+            credentials: "include",
             headers: {
               "Content-Type": "application/json",
+              
             },
             body: JSON.stringify({
-              sale_id: newSale.id,
+              sale_id: newSale.sale_id,
               item_id: item.item_id,
               quantity: item.quantity,
               unit_price: item.unit_price,
@@ -218,6 +212,71 @@ function Sales() {
       alert("Une erreur est survenue lors de l'enregistrement de la vente");
     }
   };
+
+  //-------------------------------------------START OF HELPER FUNCTIONS------------------------------------------
+  // Mettre à jour une vente
+  const updateSale = async (saleId, saleData) => {
+    const response = await fetch(`http://localhost:5000/api/sales/${saleId}`, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(saleData)
+    });
+  
+    if (!response.ok) throw new Error("Erreur lors de la mise à jour de la vente");
+  
+    return await response.json();
+  };
+    //METTRE A JOUR LES ITEMS DUNE VENTE
+  const updateSaleItems = async (saleId, items) => {
+    await Promise.all(items.map(async (item) => {
+      const url = item.id
+        ? `http://localhost:5000/api/sale_items/${item.id}`
+        : "http://localhost:5000/api/sale_items";
+  
+      const method = item.id ? "PUT" : "POST";
+  
+      const body = item.id
+        ? {
+            item_id: item.item_id,
+            quantity: item.quantity,
+            unit_price: item.unit_price
+          }
+        : {
+            sale_id: saleId,
+            item_id: item.item_id,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            product_name: item.product_name
+          };
+  
+      await fetch(url, {
+        method,
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+    }));
+  };
+  //DELETE LES ITEMS DUNE VENTE
+  const deleteRemovedItems = async (saleId, updatedItems, currentItems) => {
+    const updatedItemIds = updatedItems.filter(i => i.id).map(i => Number(i.id));
+  
+    await Promise.all(currentItems
+      .filter(item => Number(item.sale_id) === Number(saleId))
+      .filter(item => !updatedItemIds.includes(Number(item.id)))
+      .map(async (item) => {
+        await fetch(`http://localhost:5000/api/sale_items/${item.id}`, {
+          method: "DELETE",
+          credentials: "include"
+        });
+      })
+    );
+  };
+    //-------------------------------------------END OF HELPER FUNCTIONS------------------------------------------
+
+
+
 
   // Gérer les changements dans le formulaire
   const handleChange = (e) => {
@@ -254,12 +313,16 @@ function Sales() {
       const selectedProduct = products.find(p => p.id === parseInt(value));
       updatedItems[index] = {
         ...updatedItems[index],
-        item_id: parseInt(value),
-        product_name: selectedProduct.product_name,
-        unit_price: selectedProduct.price
+        item_id: Number(value),
+        product_name: selectedProduct?.product_name || "",
+        unit_price: selectedProduct?.price || 0,
+        quantity: updatedItems[index].quantity || 1, 
       };
     } else {
-      updatedItems[index][field] = value;
+      updatedItems[index] = {
+        ...updatedItems[index],
+        [field]: value,
+      };
     }
     
     // Recalculer le sous-total
@@ -298,7 +361,7 @@ function Sales() {
   // Éditer une vente
   const handleEdit = (sale) => {
     const saleItemsList = saleItems
-      .filter(item => Number(item.sale_id) === Number(sale.id))
+      .filter(item => Number(item.sale_id) === Number(sale.id)) // <- changed here
       .map(item => ({
         id: item.id,
         item_id: item.item_id,
@@ -307,7 +370,7 @@ function Sales() {
         unit_price: item.unit_price,
         subtotal: item.quantity * item.unit_price
       }));
-    
+  
     setFormData({
       id: sale.id,
       payment_method: sale.payment_method,
@@ -315,28 +378,30 @@ function Sales() {
       user_id: sale.user_id,
       items: saleItemsList
     });
-    
+  
     setIsEditing(true);
     setShowForm(true);
   };
+  
 
   // Supprimer une vente
   const handleDelete = async (id) => {
+    
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cette vente ?")) {
       try {
-        const response = await fetch(
-          `http://localhost:5000/api/sales/${id}`,
-          {
-            method: "DELETE",
-          }
-        );
+        console.log("🧪 ID passed to delete sale fetch:", id);
+        const response = await fetch(`http://localhost:5000/api/sales/${id}`, {
+          method: "DELETE",
+          credentials: "include",
+        });
 
         if (!response.ok) {
           throw new Error("Erreur lors de la suppression de la vente");
         }
 
-        setSales(sales.filter((sale) => Number(sale.id) !== Number(id)));
-        setSaleItems(saleItems.filter((item) => Number(item.sale_id) !== Number(id)));
+        setSales((prevSales) =>
+          prevSales.filter((sale) => Number(sale.sale_id) !== Number(id))
+        );        setSaleItems(saleItems.filter((item) => Number(item.sale_id) !== Number(id)));
       } catch (err) {
         console.error("Erreur lors de la suppression:", err);
         alert("Une erreur est survenue lors de la suppression de la vente");
@@ -373,8 +438,8 @@ function Sales() {
 
   // Obtenir les articles d'une vente spécifique
   const getSaleItems = (saleId) => {
-    // Convertir les IDs en nombres pour garantir une comparaison cohérente
-    return saleItems.filter(item => Number(item.sale_id) === Number(saleId));
+    const sale = sales.find(s => s.id === saleId);
+    return sale?.items || [];
   };
 
   if (loading) return <div className="loading">Chargement des ventes...</div>;
@@ -384,8 +449,18 @@ function Sales() {
     <div className="sales-page">
       <div className="sales-header">
         <h1>Gestion des ventes</h1>
-        <button className="add-button" onClick={() => setShowForm(!showForm)}>
-          {showForm ? "Annuler" : "Nouvelle vente"}
+        <button
+              className="add-button"
+              onClick={() => {
+                if (showForm) {
+                  // You're hiding the form = clicking "Annuler"
+                  resetForm();
+                  setIsEditing(false); // Optional if you're also handling editing mode
+                }
+                setShowForm(!showForm);
+              }}
+            >
+              {showForm ? "Annuler" : "Nouvelle vente"}
         </button>
       </div>
 
@@ -553,87 +628,91 @@ function Sales() {
             </tr>
           </thead>
           <tbody>
-            {sales.length === 0 ? (
-              <tr>
-                <td colSpan="5" className="no-data">
-                  Aucune vente enregistrée
-                </td>
-              </tr>
-            ) : (
-              sales.map((sale) => (
-                <React.Fragment key={sale.id}>
-                  <tr
-                    className={selectedSale === Number(sale.id) ? "selected-row" : ""}
-                    onClick={() => handleSelectSale(sale)}
-                  >
-                    <td>{formatDate(sale.sale_date)}</td>
-                    <td>{sale.payment_method}</td>
-                    <td className="amount-cell">
-                      {formatAmount(sale.total_amount)}
-                    </td>
-                    <td className="notes-cell">{sale.notes}</td>
-                    <td className="actions-cell">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(sale);
-                        }}
-                        className="edit-button"
-                      >
-                        Modifier
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(sale.id);
-                        }}
-                        className="delete-button"
-                      >
-                        Supprimer
-                      </button>
-                    </td>
-                  </tr>
-                  {selectedSale === Number(sale.id) && (
-                    <tr className="sale-details-row">
-                      <td colSpan="5">
-                        <div className="sale-details">
-                          <h4>Détails de la vente</h4>
-                          <table className="sale-items-detail-table">
-                            <thead>
-                              <tr>
-                                <th>Produit</th>
-                                <th>Quantité</th>
-                                <th>Prix unitaire</th>
-                                <th>Sous-total</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {getSaleItems(sale.id).length === 0 ? (
-                                <tr>
-                                  <td colSpan="4" className="no-data">
-                                    Aucun article
-                                  </td>
-                                </tr>
-                              ) : (
-                                getSaleItems(sale.id).map((item) => (
-                                  <tr key={item.id}>
-                                    <td>{item.product_name}</td>
-                                    <td>{item.quantity}</td>
-                                    <td>{formatAmount(item.unit_price)}</td>
-                                    <td>{formatAmount(item.quantity * item.unit_price)}</td>
-                                  </tr>
-                                ))
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
-              ))
-            )}
-          </tbody>
+  {console.log("🧪 Sales array at render:", sales)}
+
+  {sales.length === 0 ? (
+    <tr>
+      <td colSpan="5" className="no-data">
+        Aucune vente enregistrée
+      </td>
+    </tr>
+  ) : (
+    sales.map((sale) => {
+      return (
+        <React.Fragment key={sale.sale_id}>
+          <tr
+            className={selectedSale === Number(sale.sale_id) ? "selected-row" : ""}
+            onClick={() => handleSelectSale(sale)}
+          >
+            <td>{formatDate(sale.sale_date)}</td>
+            <td>{sale.payment_method}</td>
+            <td className="amount-cell">{formatAmount(sale.total_amount)}</td>
+            <td className="notes-cell">{sale.notes}</td>
+            <td className="actions-cell">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEdit(sale);
+                }}
+                className="edit-button"
+              >
+                Modifier
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(sale.sale_id)
+                }}
+                className="delete-button"
+              >
+                Supprimer
+              </button>
+            </td>
+          </tr>
+
+          {selectedSale === Number(sale.sale_id) && (
+            <tr className="sale-details-row">
+              <td colSpan="5">
+                <div className="sale-details">
+                  <h4>Détails de la vente</h4>
+                  <table className="sale-items-detail-table">
+                    <thead>
+                      <tr>
+                        <th>Produit</th>
+                        <th>Quantité</th>
+                        <th>Prix unitaire</th>
+                        <th>Sous-total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {getSaleItems(sale.id).length === 0 ? (
+                        <tr>
+                          <td colSpan="4" className="no-data">
+                            Aucun article
+                          </td>
+                        </tr>
+                      ) : (
+                        getSaleItems(sale.id).map((item) => (
+                          <tr key={item.id}>
+                            <td>{item.product_name}</td>
+                            <td>{item.quantity}</td>
+                            <td>{formatAmount(item.unit_price)}</td>
+                            <td>{formatAmount(item.quantity * item.unit_price)}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </td>
+            </tr>
+          )}
+        </React.Fragment>
+      );
+    })
+  )}
+</tbody>
+
         </table>
       </div>
     </div>

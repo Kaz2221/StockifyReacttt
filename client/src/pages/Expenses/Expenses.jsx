@@ -22,25 +22,30 @@ function Expenses() {
 
   const navigate = useNavigate();
 
-  // Charger les dépenses depuis le serveur
   useEffect(() => {
-    // Vérifier si l'utilisateur est connecté
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    if (!user) {
-      navigate("/");
-      return;
-    }
-
-    fetchExpenses();
+    const fetchData = async () => {
+      try {
+        await fetchExpenses();
+      } catch (err) {
+        if (err.message.includes("401")) {
+          navigate("/"); // Redirect if unauthorized
+        } else {
+          console.error("Erreur lors du chargement des dépenses:", err);
+        }
+      }
+    };
+  
+    fetchData();
   }, [navigate]);
-
+  
   // Fonction pour récupérer les dépenses
   const fetchExpenses = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/expenses");
-
+      const response = await fetch("http://localhost:5000/api/expenses", {
+        method: "GET",
+        credentials: "include", // 👈 sends cookies (including your JWT)
+      });
       if (!response.ok) {
         throw new Error("Erreur lors de la récupération des dépenses");
       }
@@ -92,6 +97,7 @@ function Expenses() {
           `http://localhost:5000/api/expenses/${formData.id}`,
           {
             method: "PUT",
+            credentials: "include",
             headers: {
               "Content-Type": "application/json",
             },
@@ -113,6 +119,7 @@ function Expenses() {
         // Ajout d'une nouvelle dépense
         const response = await fetch("http://localhost:5000/api/expenses", {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
@@ -176,6 +183,7 @@ function Expenses() {
           `http://localhost:5000/api/expenses/${id}`,
           {
             method: "DELETE",
+            credentials: 'include',
           }
         );
 
