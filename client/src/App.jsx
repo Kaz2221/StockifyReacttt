@@ -8,7 +8,7 @@ import Inventory from './pages/Inventory/Inventory';
 import Expenses from './pages/Expenses/Expenses';
 import Sales from './pages/Sales/Sales';
 import PageTransition from './components/layout/PageTransition';
-import Register from './components/Register';
+import Register from './pages/Register/Register';
 import './App.css';
 
 function App() {

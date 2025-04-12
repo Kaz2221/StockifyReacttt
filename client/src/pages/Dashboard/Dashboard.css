@@ -61,3 +61,42 @@
     font-size: 1.5rem;
     height: 50vh;
   }
+
+  .dashboard-card {
+    background: #0c1d51ed;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+  
+  .dashboard-card h2 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .dashboard-card-content {
+    margin-bottom: 1rem;
+  }
+  
+  .action-btn {
+    background: #007bff;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  /*CARDS CHART CSS HERE*/
+  .chart-card {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 2rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  }
+  .chart-card h3 {
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  

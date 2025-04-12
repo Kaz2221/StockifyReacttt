@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import './Sales.css';
 import SalesForm from './SalesForm.jsx';
 import SalesList from './SalesList.jsx';
+import Toast from '../../components/Toast';
 import {
   getSales,
   getSaleItems,
@@ -148,14 +149,20 @@ const Sales = () => {
       }
     };
     
-    
-
     // This function will handle the changes in the form inputs and update the state accordingly
     const handleChange = (e) => {
       const { name, value } = e.target;
       setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleCancel = () => {
+      setFormData({ total_amount: '', payment_method: '', notes: '' });
+      setSaleItems([{ item_id: '', quantity: '', unit_price: '' }]);
+      setModifyMode(false);
+      setSaleBeingEdited(null);
+      setShowForm(false);
+    };
+    
     // This function will handle the changes in the sale items inputs and update the state accordingly
     const handleItemChange = (index, field, value) => {
       const updatedItems = [...saleItems];
@@ -245,15 +252,26 @@ const Sales = () => {
       }
     };
 
+
+
   return (
     <div className="sales-page">
       {loadingItems && <div className="loading">Loading your inventory...</div>}
       {itemError && <div className="error-message">{itemError}</div>}
       <div className="sales-header">
         <h1>Sales</h1>
-        <button className="add-button" onClick={() => setShowForm(prev => !prev)}>
-          {showForm ? 'Cancel' : 'Add Sale'}
-        </button>
+        <button
+            className="add-button"
+            onClick={() => {
+              if (showForm) {
+                handleCancel(); //  Canceling: reset everything
+              } else {
+                setShowForm(true); //  Opening fresh form
+              }
+            }}
+          >
+            {showForm ? 'Cancel' : 'Add Sale'}
+          </button>
       </div>
       {showForm && (
               <SalesForm
@@ -265,6 +283,7 @@ const Sales = () => {
                 removeSaleItemRow={removeSaleItemRow}
                 updateSaleItem={handleItemChange}
                 handleSubmit={handleSubmit}
+                handleCancel={handleCancel}
                 modifyMode={modifyMode}
               />
             )}
@@ -277,11 +296,7 @@ const Sales = () => {
             saleDetails={selectedSaleItems}
             handleSaleClick={handleSaleClick}
           />
-            {message && (
-              <div className={`toast-message ${fadingOut ? 'fade-out' : ''}`}>
-                {message}
-              </div>
-            )}
+          <Toast message={message} isError={error} fadingOut={fadingOut} />
           </div>
   );
 };
