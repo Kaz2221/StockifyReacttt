@@ -28,6 +28,35 @@ export const getSalesItems = async (req, res) => {
       }
 }
 
+export const getItemsForSale = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { sale_id } = req.params;
+
+    const result = await pool.query(`
+      SELECT 
+        si.id,
+        si.item_id,
+        i.product_name,
+        si.quantity,
+        si.unit_price,
+        si.subtotal
+      FROM sale_items si
+      LEFT JOIN items i ON si.item_id = i.id
+      INNER JOIN sales s ON si.sale_id = s.id
+      WHERE s.user_id = $1 AND s.id = $2
+      ORDER BY si.id
+    `, [userId, sale_id]);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching sale item details:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
 export const addSaleItem = async (req, res) => {
     const client = await pool.connect();
   
@@ -198,4 +227,18 @@ export const deleteSaleItem = async (req, res) => {
     } finally {
       client.release();
     }
+
+    
 }
+
+export const deleteSaleItemsBySaleId = async (req, res) => {
+  const { sale_id } = req.params;
+
+  try {
+    await pool.query('DELETE FROM sale_items WHERE sale_id = $1', [sale_id]);
+    res.status(204).send();
+  } catch (err) {
+    console.error('Error deleting sale items by sale ID:', err);
+    res.status(500).json({ message: 'Server error deleting sale items' });
+  }
+};

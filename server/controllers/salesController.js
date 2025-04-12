@@ -78,8 +78,21 @@ export const addSale = async (req, res) => {
 }
 
 export const updateSale = async (req, res) => {
+  const { total_amount, payment_method, notes } = req.body;
+  const { id } = req.params;
+  const userId = req.user.id;
 
-}
+  try {
+    await pool.query(
+      `UPDATE sales SET total_amount = $1, payment_method = $2, notes = $3 WHERE id = $4 AND user_id = $5`,
+      [total_amount, payment_method, notes, id, userId]
+    );
+    res.status(200).json({ message: 'Sale updated successfully' });
+  } catch (err) {
+    console.error('Error updating sale:', err);
+    res.status(500).json({ message: 'Failed to update sale' });
+  }
+};
 
 export const deleteSale = async (req, res) => {
     const client = await pool.connect();

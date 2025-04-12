@@ -9,5 +9,4 @@ router.get('/full', verifyToken, getFullSales);
 router.post('/', verifyToken, addSale); // This route is for adding a sale
 router.put('/:id', verifyToken, updateSale); // This route is for updating a sale
 router.delete('/:id', verifyToken, deleteSale); // This route is for deleting a sale
-
 export default router;  

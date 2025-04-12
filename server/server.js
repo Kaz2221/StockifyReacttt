@@ -51,33 +51,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 
-app.get('/api/sale_items', verifyToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
-
-        const result = await pool.query(`
-          SELECT 
-            si.id,
-            si.sale_id,
-            si.item_id,
-            i.product_name,
-            si.quantity,
-            si.unit_price
-          FROM sale_items si
-          LEFT JOIN items i ON si.item_id = i.id
-          INNER JOIN sales s ON si.sale_id = s.id
-          WHERE s.user_id = $1
-          ORDER BY si.sale_id, si.id
-        `, [userId]);
-
-    res.json(result.rows);
-  } catch (error) {
-    console.error('Erreur lors de la récupération des articles de vente:', error);
-    res.status(500).json({ message: 'Erreur serveur' });
-  }
-});
-
-
 
 // Ajouter un article à une vente
 // Ajouter un article à une vente
