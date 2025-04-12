@@ -7,7 +7,7 @@ export const getSalesLast30Days = async (req, res) => {
 
   try {
     const query = `
-      SELECT 
+      SELECT \
         TO_CHAR(sale_date, 'YYYY-MM-DD') AS day,
         SUM(total_amount)::FLOAT AS total
       FROM sales
