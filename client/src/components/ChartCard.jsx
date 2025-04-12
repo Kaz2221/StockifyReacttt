@@ -1,24 +1,40 @@
-// ChartCard.jsx
+// src/components/ChartCard.jsx
 import React from 'react';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, LineElement, Tooltip, CategoryScale, LinearScale, PointElement, Legend } from 'chart.js';
+import {
+  Chart as ChartJS,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Tooltip,
+  Legend,
+  Filler,
+} from 'chart.js';
 
 
-ChartJS.register(LineElement, Tooltip, CategoryScale, LinearScale, PointElement, Legend);
 
-const ChartCard = ({ title, label, data, color }) => {
+ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend, Filler);
+
+const ChartCard = ({ title, label, color, data }) => {
+  const labels = data.map((d) => d.day);
+  const totals = data.map((d) => d.total);
+
   const chartData = {
-    labels: data.map(d => d.label), // ["Apr 01", "Apr 02", ...]
-    datasets: [{
-      label,
-      data: data.map(d => d.total), // [200.50, 0, 140.99, ...]
-      borderColor: color,
-      backgroundColor: color,
-      fill: false,
-      tension: 0.3,
-      pointRadius: 4,
-      pointHoverRadius: 6,
-    }]
+    labels,
+    datasets: [
+      {
+        label: label || 'Montant (€)',
+        data: totals,
+        fill: true,
+        borderColor: color || '#4bc0c0',
+        backgroundColor: `${color || '#4bc0c0'}22`, // light transparent fill
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        tension: 0.4,
+        borderWidth: 2,
+      },
+    ],
   };
 
   const options = {
@@ -26,25 +42,18 @@ const ChartCard = ({ title, label, data, color }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'bottom',
         labels: {
-          color: '#fff', // match your dark theme
+          color: '#0d0606',
+          font: {
+            size: 12,
+          },
         },
       },
       tooltip: {
         callbacks: {
           label: function (context) {
-            return `${context.dataset.label}: ${context.raw.toFixed(2)} €`;
+            return `${label || 'Montant'}: €${context.parsed.y.toFixed(2)}`;
           },
-        },
-      },
-      title: {
-        display: true,
-        text: title,
-        color: '#fff',
-        font: {
-          size: 18,
-          weight: 'bold',
         },
       },
     },
@@ -54,25 +63,27 @@ const ChartCard = ({ title, label, data, color }) => {
           color: '#ccc',
         },
         grid: {
-          color: 'rgba(255,255,255,0.1)',
+          display: false
         },
       },
       y: {
         ticks: {
-          color: '#ccc',
-          callback: (value) => `${value}€`,
+          color: '#0d0606',
+          callback: (val) => `€${val}`,
         },
         grid: {
-          color: 'rgba(255,255,255,0.1)',
+          color: 'rgba(255,255,255,0.05)',
         },
       },
     },
   };
-  
+
   return (
     <div className="chart-card">
       <h3>{title}</h3>
-      <Line data={chartData} options={options} />
+      <div className="chart-container">
+        <Line data={chartData} options={options} />
+      </div>
     </div>
   );
 };

@@ -7,7 +7,6 @@ import DashboardCard from '../../components/DashboardCard';
 import ChartCard from '../../components/ChartCard';
 import './Dashboard.css'; 
 
-
 function Dashboard() {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -52,9 +51,16 @@ function Dashboard() {
     const fetchChartData = async () => {
       try {
         const res = await getSalesLast30Days();
-        const data = res.data;
-  
-        // Optional: you could format it if needed here
+        const data = res.data.map(entry => {
+          const date = new Date(entry.day);
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          return {
+            ...entry,
+            day: `${month}-${day}` // 👈 Format as MM-DD
+          };
+        });
+        
         setSalesPerDay(data);
       } catch (err) {
         console.error('Error fetching 30-day sales chart:', err);
@@ -115,16 +121,44 @@ function Dashboard() {
             <li>Mise à jour de l'inventaire - Il y a 5 heures</li>
           </ul>
         </DashboardCard>
-          <ChartCard
-            title="Ventes Mensuelles"
-            label="Ventes (€)"
-            color="#007bff"
-            data={salesPerDay}
-          />
 
 
 
       </motion.div>
+        <div className="charts-grid">
+          
+            <div className="chart-container">
+              <h3 className="chart-title">Inventory Value</h3>
+              <div className="chart-card">
+                <ChartCard
+                  label="Ventes (€)"
+                  color="#007bff"
+                  data={salesPerDay}
+                />
+              </div>
+            </div>
+            <div className="chart-container">
+              <h3 className="chart-title">Expenses</h3>
+              <div className="chart-card">
+                <ChartCard
+                  label="Ventes (€)"
+                  color="#007bff"
+                  data={salesPerDay}
+                />
+              </div>
+            </div>
+            <div className="chart-container">
+              <h3 className="chart-title">Ventes Mensuelles</h3>
+              <div className="chart-card">
+                <ChartCard
+                  label="Ventes (€)"
+                  color="#007bff"
+                  data={salesPerDay}
+                />
+              </div>
+            </div>
+            
+        </div>
     </div>
   );
 }
