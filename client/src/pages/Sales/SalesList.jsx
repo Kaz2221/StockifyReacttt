@@ -9,28 +9,17 @@ const SalesList = ({
   saleDetails,
   handleSaleClick
 }) => {
-  // Fonction pour formater la date
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    const options = { 
-      year: 'numeric', 
-      month: '2-digit', 
-      day: '2-digit' 
-    };
-    return new Date(dateString).toLocaleDateString('fr-FR', options);
-  };
-
   return (
     <div className="sales-table-container">
       {sales.length === 0 ? (
-        <div className="no-data">Aucune vente enregistrée</div>
+        <div className="no-data">No sales yet.</div>
       ) : (
         <table className="sales-table">
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Montant</th>
-              <th>Paiement</th>
+              <th>ID</th>
+              <th>Amount</th>
+              <th>Payment</th>
               <th>Notes</th>
               <th className="actions-cell">Actions</th>
             </tr>
@@ -42,8 +31,8 @@ const SalesList = ({
                   className={selectedSaleId === sale.id ? 'selected-row' : ''}
                   onClick={() => handleSaleClick(sale.id)}
                 >
-                  <td>{formatDate(sale.sale_date)}</td>
-                  <td className="amount-cell">{Number(sale.total_amount).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</td>
+                  <td>{sale.id}</td>
+                  <td className="amount-cell">${Number(sale.total_amount).toFixed(2)}</td>
                   <td>{sale.payment_method}</td>
                   <td className="notes-cell">{sale.notes}</td>
                   <td className="actions-cell">
@@ -54,7 +43,7 @@ const SalesList = ({
                         handleEditSale(sale);
                       }}
                     >
-                      Modifier
+                      Modify
                     </button>
                     <button
                       className="delete-button"
@@ -63,7 +52,7 @@ const SalesList = ({
                         handleDeleteSale(sale.id);
                       }}
                     >
-                      Supprimer
+                      Delete
                     </button>
                   </td>
                 </tr>
@@ -72,14 +61,14 @@ const SalesList = ({
                   <tr className="sale-details-row">
                     <td colSpan="5">
                       <div className="sale-details">
-                        <h4>Détails de la vente</h4>
+                        <h4>Sale Details</h4>
                         <table className="sale-items-detail-table">
                           <thead>
                             <tr>
-                              <th>Article</th>
-                              <th>Quantité</th>
-                              <th>Prix unitaire</th>
-                              <th>Sous-total</th>
+                              <th>Item</th>
+                              <th>Quantity</th>
+                              <th>Unit Price</th>
+                              <th>Subtotal</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -87,8 +76,8 @@ const SalesList = ({
                               <tr key={item.id}>
                                 <td>{item.product_name}</td>
                                 <td>{item.quantity}</td>
-                                <td>{Number(item.unit_price).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</td>
-                                <td>{Number(item.quantity * item.unit_price).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</td>
+                                <td>${Number(item.unit_price).toFixed(2)}</td>
+                                <td>${Number(item.quantity * item.unit_price).toFixed(2)}</td>
                               </tr>
                             ))}
                           </tbody>

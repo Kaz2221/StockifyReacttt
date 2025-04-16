@@ -5,27 +5,18 @@ const userId = req.user.id;
 
 try{
     const query = `
-    WITH date_series AS (
-      SELECT generate_series(
-        CURRENT_DATE - INTERVAL '29 days', 
-        CURRENT_DATE, 
-        '1 day'::interval
-      ) AS day
-    )
-    SELECT 
-      TO_CHAR(date_series.day, 'YYYY-MM-DD') AS day,
-      COALESCE((
-        SELECT SUM(cost * qty) 
-        FROM items 
-        WHERE user_id = $1 
-        AND purchase_date::date <= date_series.day
-      ), 0)::FLOAT AS total
-    FROM date_series
+    SELECT \
+      TO_CHAR(purchase_date, 'YYYY-MM-DD') AS day,
+      SUM(cost)::FLOAT AS total
+    FROM items
+    WHERE user_id = $1
+      AND purchase_date >= CURRENT_DATE - INTERVAL '30 days'
+    GROUP BY day
     ORDER BY day
   `;
     const { rows } = await pool.query(query, [userId]);
 
-    // Ensure we have data for all 30 days
+    //  Format the data for the chart
     const today = new Date();
     const days = Array.from({length: 30}, (_,i) =>{
         const d = new Date(today);
@@ -43,7 +34,7 @@ try{
     res.json(chartData);
 
     }catch(err){
-    console.error('Error fetching inventory cost:', err);
-    res.status(500).json({ message: 'Server error retrieving inventory cost' });
+    console.error('Error fetching sales last 30 days:', err);
+    res.status(500).json({ message: 'Server error retrieving sales' });
     }
 }

@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import './Sales.css';
 
 const SalesForm = ({
   formData,
-  setFormData,  // Ajout de setFormData comme prop
   handleChange,
   saleItems,
   inventoryItems,
@@ -11,52 +10,37 @@ const SalesForm = ({
   removeSaleItemRow,
   updateSaleItem,
   handleSubmit,
-  handleCancel,
   modifyMode
 }) => {
-  // Calculer le montant total automatiquement
-  useEffect(() => {
-    const totalAmount = saleItems.reduce((sum, item) => {
-      const subtotal = (item.quantity || 0) * (item.unit_price || 0);
-      return sum + subtotal;
-    }, 0);
-
-    // Mettre à jour le formulaire avec le montant total calculé
-    setFormData(prev => ({
-      ...prev,
-      total_amount: totalAmount.toFixed(2)
-    }));
-  }, [saleItems, setFormData]);
-
   return (
     <div className="sales-form-container">
       <form onSubmit={handleSubmit} className="sales-form">
-        <h2>{modifyMode ? 'Modifier la vente' : 'Nouvelle vente'}</h2>
+        <h2>{modifyMode ? 'Edit Sale' : 'Add a New Sale'}</h2>
 
         <div className="form-row">
           <div className="form-group">
-            <label>Montant total</label>
+            <label>Total Amount</label>
             <input
               type="number"
               name="total_amount"
               value={formData.total_amount}
-              readOnly
-              className="read-only-input"
+              onChange={handleChange}
+              required
             />
           </div>
 
           <div className="form-group">
-            <label>Méthode de paiement</label>
+            <label>Payment Method</label>
             <select
               name="payment_method"
               value={formData.payment_method}
               onChange={handleChange}
               required
             >
-              <option value="">Sélectionner un mode de paiement</option>
-              <option value="Cash">Espèces</option>
-              <option value="Card">Carte</option>
-              <option value="Bank Transfer">Virement</option>
+              <option value="">Select Payment Method</option>
+              <option value="Cash">Cash</option>
+              <option value="Card">Card</option>
+              <option value="Bank Transfer">Bank Transfer</option>
             </select>
           </div>
         </div>
@@ -74,26 +58,22 @@ const SalesForm = ({
 
         <div className="sale-items-section">
           <div className="sale-items-header">
-            <h3>Articles de la vente</h3>
-            <button 
-              type="button" 
-              className="add-item-button" 
-              onClick={addSaleItemRow}
-            >
-              + Ajouter un article
+            <h3>Sale Items</h3>
+            <button type="button" className="add-item-button" onClick={addSaleItemRow}>
+              + Add Item
             </button>
           </div>
 
           {saleItems.length === 0 ? (
-            <div className="no-items">Aucun article ajouté</div>
+            <div className="no-items">No items added yet.</div>
           ) : (
             <table className="sale-items-table">
               <thead>
                 <tr>
-                  <th>Article</th>
-                  <th>Quantité</th>
-                  <th>Prix unitaire</th>
-                  <th>Sous-total</th>
+                  <th>Item</th>
+                  <th>Qty</th>
+                  <th>Unit Price</th>
+                  <th>Subtotal</th>
                   <th></th>
                 </tr>
               </thead>
@@ -106,7 +86,7 @@ const SalesForm = ({
                         onChange={(e) => updateSaleItem(idx, 'item_id', e.target.value)}
                         required
                       >
-                        <option value="">Sélectionner un article</option>
+                        <option value="">Select Item</option>
                         {inventoryItems.map((invItem) => (
                           <option key={invItem.id} value={invItem.id}>
                             {invItem.product_name}
@@ -137,7 +117,7 @@ const SalesForm = ({
                         className="remove-item-button"
                         onClick={() => removeSaleItemRow(idx)}
                       >
-                        Supprimer
+                        Remove
                       </button>
                     </td>
                   </tr>
@@ -148,18 +128,8 @@ const SalesForm = ({
         </div>
 
         <div className="form-buttons">
-          <button 
-            type="button" 
-            onClick={handleCancel} 
-            className="cancel-button"
-          >
-            Annuler
-          </button>
-          <button 
-            type="submit" 
-            className="save-button"
-          >
-            {modifyMode ? 'Mettre à jour' : 'Enregistrer'}
+          <button type="submit" className="save-button">
+            {modifyMode ? 'Update Sale' : 'Save Sale'}
           </button>
         </div>
       </form>
