@@ -26,6 +26,7 @@ function Navbar() {
         <Link to="/inventory" className="nav-link">Inventaire</Link>
         <Link to="/sales" className="nav-link">Ventes</Link>
         <Link to="/expenses" className="nav-link">Dépenses</Link>
+        <Link to="/Subscriptions" className="nav-link">Subscriptions</Link>
       </div>
       
       <div className="navbar-user">
