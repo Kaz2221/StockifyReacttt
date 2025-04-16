@@ -44,7 +44,11 @@ function Inventory() {
   const fetchInventory = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/items');
+
+      const response = await fetch('http://localhost:5000/api/items', {
+        method: "GET",
+        credentials: "include"  
+      });
       
       if (!response.ok) {
         throw new Error('Erreur lors de la récupération de l\'inventaire');
@@ -81,6 +85,7 @@ function Inventory() {
         // Mise à jour d'un article existant
         const response = await fetch(`http://localhost:5000/api/items/${formData.id}`, {
           method: 'PUT',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -97,6 +102,7 @@ function Inventory() {
         // Ajout d'un nouvel article
         const response = await fetch('http://localhost:5000/api/items', {
           method: 'POST',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -164,6 +170,7 @@ function Inventory() {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
       try {
         const response = await fetch(`http://localhost:5000/api/items/${id}`, {
+          credentials: 'include',
           method: 'DELETE',
         });
         

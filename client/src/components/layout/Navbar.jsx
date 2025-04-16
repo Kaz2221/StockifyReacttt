@@ -12,6 +12,9 @@ function Navbar() {
     navigate('/');
   };
 
+  // Image par défaut si aucune photo de profil n'est fournie
+  const defaultProfileImage = 'https://cdn.iconscout.com/icon/free/png-256/free-avatar-370-456322.png';
+
   return (
     <nav className="navbar">
       <div className="navbar-logo">
@@ -28,7 +31,16 @@ function Navbar() {
       <div className="navbar-user">
         {user && (
           <>
-            <span className="user-email">{user.email}</span>
+            <div className="user-profile">
+              <img 
+                src={user.profile_picture || defaultProfileImage} 
+                alt="Photo de profil" 
+                className="profile-image"
+              />
+              <span className="user-name">
+                {user.first_name} {user.last_name}
+              </span>
+            </div>
             <button onClick={handleLogout} className="logout-button">
               Déconnexion
             </button>
