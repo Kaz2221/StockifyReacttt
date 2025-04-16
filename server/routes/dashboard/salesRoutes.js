@@ -1,5 +1,5 @@
 import express from 'express';
-import { getSalesLast30Days } from '../../controllers/dashboard/salesController.js';
+import { getSalesLast30Days } from '../../controllers/dashboardTab/salesController.js';
 import { verifyToken } from '../../middlewares/authMiddleware.js';
 
 const router = express.Router();

@@ -1,6 +1,6 @@
 import express from 'express';
 import { verifyToken } from '../middlewares/authMiddleware.js';
-import { addItem, getItems, updateItem, deleteItem } from '../controllers/inventoryController.js';
+import { addItem, getItems, updateItem, deleteItem } from '../controllers/inventoryTab/inventoryController.js'; 
 
 const router = express.Router();
 

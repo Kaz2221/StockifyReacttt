@@ -1,6 +1,6 @@
 import express from 'express';
 import { verifyToken } from '../middlewares/authMiddleware.js';
-import { getSalesItems, addSaleItem, deleteSaleItem,updateSaleItem, getItemsForSale, deleteSaleItemsBySaleId } from '../controllers/salesItemsController.js';
+import { getSalesItems, addSaleItem, deleteSaleItem,updateSaleItem, getItemsForSale, deleteSaleItemsBySaleId } from '../controllers/salesTab/salesItemsController.js';
 const router = express.Router();
 
 router.get('/', verifyToken, getSalesItems); // This route is for getting a specific sale by ID

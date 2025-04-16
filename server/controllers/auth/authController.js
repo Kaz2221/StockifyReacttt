@@ -1,4 +1,4 @@
-import pool from '../server.js'; // path depends on where the file is
+import pool from '../../server.js'; // path depends on where the file is
 import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken"; 
 //REGISTER LOGIC

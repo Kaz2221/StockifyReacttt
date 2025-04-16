@@ -1,7 +1,8 @@
-import pool from '../server.js'; // path depends on where the file is
+import pool from '../../server.js'; // path depends on where the file is
 
 export const getExpenses = async (req, res) => {
     try {
+      const userId = req.user.id;
         const result = await pool.query(`
           SELECT 
             id,
@@ -14,8 +15,9 @@ export const getExpenses = async (req, res) => {
             notes,
             created_at
           FROM expenses
+          WHERE user_id = $1
           ORDER BY expense_date DESC
-        `);
+        `,[userId]);
         
         res.json(result.rows);
       } catch (error) {
@@ -26,14 +28,15 @@ export const getExpenses = async (req, res) => {
 
 export const addExpense = async (req, res) => {
     try {
+        const userId = req.user.id;
         const { name, category, amount, expense_date, recurring, recurring_period, notes } = req.body;
         
         const result = await pool.query(
           `INSERT INTO expenses 
-           (name, category, amount, expense_date, recurring, recurring_period, notes, created_at) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP) 
+           (name, category, amount, expense_date, recurring, recurring_period, notes, created_at,user_id) 
+           VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP,$8) 
            RETURNING *`,
-          [name, category, amount, expense_date, recurring, recurring_period, notes]
+          [name, category, amount, expense_date, recurring, recurring_period, notes, userId]
         );
         
         res.status(201).json(result.rows[0]);

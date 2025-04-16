@@ -1,4 +1,4 @@
-import pool from '../server.js'; // path depends on where the file is
+import pool from '../../server.js'; // path depends on where the file is
 //Get Items from logged in user
 // This function retrieves all items for the logged-in user from the database.
 export const getItems = async (req, res) => {
