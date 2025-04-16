@@ -15,3 +15,8 @@ export const getSalesLast30Days = () =>
     axios.get(`${process.env.REACT_APP_API_URL}/api/sales-last-30-days`, {
       withCredentials: true,
     });
+
+export const getInventoryCostLast30Days = () =>
+    axios.get(`${process.env.REACT_APP_API_URL}/api/inventory-cost-last-30-days`, {
+      withCredentials: true,
+    });

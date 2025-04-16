@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getInventory, getSales, getExpenses, getSalesLast30Days } from './dashboardService'; 
+import { getInventory, getSales, getExpenses, getSalesLast30Days, getInventoryCostLast30Days } from './dashboardService'; 
 import DashboardCard from '../../components/DashboardCard';
 import ChartCard from '../../components/ChartCard';
 import './Dashboard.css'; 
@@ -11,6 +11,7 @@ function Dashboard() {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [salesPerDay, setSalesPerDay] = useState([]);
+  const [InventoryCostPerDay, setInventoryCostPerDay] = useState([]);
   const [inventoryCount, setInventoryCount] = useState(0);
   const [monthlySales, setMonthlySales] = useState(0);
   const [monthlyExpenses, setMonthlyExpenses] = useState(0);
@@ -48,26 +49,52 @@ function Dashboard() {
   }, []);
 
   useEffect(() => {
-    const fetchChartData = async () => {
+    //Fetch sales chart data
+    // This function fetches the sales data for the last 30 days and formats it for the chart
+    const fetchSalesChartData = async () => {
       try {
         const res = await getSalesLast30Days();
+        console.log("SAles CHART:",res.data);
         const data = res.data.map(entry => {
           const date = new Date(entry.day);
           const month = String(date.getMonth() + 1).padStart(2, '0');
           const day = String(date.getDate()).padStart(2, '0');
           return {
             ...entry,
-            day: `${month}-${day}` // 👈 Format as MM-DD
+            day: `${month}-${day}` 
           };
         });
         
         setSalesPerDay(data);
       } catch (err) {
         console.error('Error fetching 30-day sales chart:', err);
-      }
+        }
     };
-  
-    fetchChartData();
+    
+    //Fetch inventory chart data
+    // This function fetches the inventory data and formats it for the chart
+    const fetchInventoryChartData = async () => {
+    try{
+      const res = await getInventoryCostLast30Days();
+      console.log(res.data);
+      const data = res.data.map(entry => {
+        const date = new Date(entry.day);
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return {
+          ...entry,
+          day: `${month}-${day}` 
+        };
+      });
+      
+      setInventoryCostPerDay(data);
+    }catch(err){
+      console.error('Error fetching inventory chart:', err);
+      }
+    }
+
+    fetchInventoryChartData();
+    fetchSalesChartData();
   }, []);
 
   return (
@@ -126,14 +153,13 @@ function Dashboard() {
 
       </motion.div>
         <div className="charts-grid">
-          
             <div className="chart-container">
               <h3 className="chart-title">Inventory Value</h3>
               <div className="chart-card">
                 <ChartCard
-                  label="Ventes (€)"
+                  label="Achats (€)"
                   color="#007bff"
-                  data={salesPerDay}
+                  data={InventoryCostPerDay}
                 />
               </div>
             </div>
