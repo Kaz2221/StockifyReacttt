@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getInventory, getSales, getExpenses, getSalesLast30Days, getInventoryCostLast30Days } from './dashboardService'; 
+import { getInventory, getSales, getExpenses, getSalesLast30Days, getInventoryCostLast30Days, getExpensesLast30Days } from './dashboardService'; 
 import DashboardCard from '../../components/DashboardCard';
 import ChartCard from '../../components/ChartCard';
 import './Dashboard.css'; 
@@ -12,6 +12,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [salesPerDay, setSalesPerDay] = useState([]);
   const [InventoryCostPerDay, setInventoryCostPerDay] = useState([]);
+  const [expensesCostPerDay, setExpensesCostPerDay] = useState([]);
   const [inventoryCount, setInventoryCount] = useState(0);
   const [monthlySales, setMonthlySales] = useState(0);
   const [monthlyExpenses, setMonthlyExpenses] = useState(0);
@@ -92,9 +93,29 @@ function Dashboard() {
       console.error('Error fetching inventory chart:', err);
       }
     }
-
+    //Fetch expenses chart data
+    // This function fetches the expenses data for the last 30 days and formats it for the chart
+    const fetchExpensesChartData = async () => {
+      try {
+        const res = await getExpensesLast30Days();
+        console.log("Expenses CHART:",res.data);
+        const data = res.data.map(entry => {
+          const date = new Date(entry.day);
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          return {
+            ...entry,
+            day: `${month}-${day}` 
+          };
+        });
+        setExpensesCostPerDay(data);
+      } catch (err) {
+        console.error('Error fetching 30-day expenses chart:', err);
+      }
+    };
     fetchInventoryChartData();
     fetchSalesChartData();
+    fetchExpensesChartData();
   }, []);
 
   return (
@@ -169,7 +190,7 @@ function Dashboard() {
                 <ChartCard
                   label="Ventes (€)"
                   color="#007bff"
-                  data={salesPerDay}
+                  data={expensesCostPerDay}
                 />
               </div>
             </div>
