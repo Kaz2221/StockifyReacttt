@@ -7,11 +7,11 @@ export const getExpensesLast30Days = async (req, res) => {
             SELECT 
       TO_CHAR(expense_date, 'YYYY-MM-DD') AS day,
       SUM(amount)::FLOAT AS total
-    FROM expenses
-    WHERE user_id = 9
-      AND expense_date >= CURRENT_DATE - INTERVAL '30 days'
-    GROUP BY day
-    ORDER BY day
+        FROM expenses
+        WHERE user_id = $1
+        AND expense_date >= CURRENT_DATE - INTERVAL '30 days'
+        GROUP BY day
+        ORDER BY day
     `;
 
     const { rows } = await pool.query(query, [userId]);
