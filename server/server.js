@@ -14,6 +14,7 @@ import expensesRoutes from "./routes/expenses.js"
 import salesRoutes from "./routes/sales.js"
 import salesItemsRoutes from "./routes/salesItems.js"
 import dashboardRoutes from "./routes/dashboard/index.js"
+import subscriptionsRoutes from "./routes/subscription.js"
 env.config();
 const { Pool } = pkg;
 // Configuration de PostgreSQL
@@ -44,6 +45,7 @@ app.use('/api/items', inventoryRoutes);
 app.use('/api/expenses', expensesRoutes);
 app.use('/api/sales', salesRoutes); 
 app.use('/api/sale_items', salesItemsRoutes);
+app.use('/api/subscriptions', subscriptionsRoutes);
 app.use('/api', dashboardRoutes);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
