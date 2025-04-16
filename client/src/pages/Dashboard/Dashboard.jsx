@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getInventory, getSales, getExpenses, getSalesLast30Days, getInventoryCostLast30Days, getExpensesLast30Days } from './dashboardService'; 
+import { getInventory, getSales, getExpenses, getSalesLast30Days, getInventoryCostLast30Days, getExpensesLast30Days, getRecentActivity } from './dashboardService'; 
 import DashboardCard from '../../components/DashboardCard';
 import ChartCard from '../../components/ChartCard';
 import './Dashboard.css'; 
@@ -13,10 +13,22 @@ function Dashboard() {
   const [salesPerDay, setSalesPerDay] = useState([]);
   const [InventoryCostPerDay, setInventoryCostPerDay] = useState([]);
   const [expensesCostPerDay, setExpensesCostPerDay] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
   const [inventoryCount, setInventoryCount] = useState(0);
   const [monthlySales, setMonthlySales] = useState(0);
   const [monthlyExpenses, setMonthlyExpenses] = useState(0);
   const navigate = useNavigate();
+
+  // Function to format the time difference into a human-readable string
+  // This function takes a timestamp and returns a string like "Il y a 2 heures"
+  const formatTimeAgo = (timestamp) => {
+    const diff = Date.now() - new Date(timestamp);
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    if (hours === 0) return "Il y a moins d'une heure";
+    return `Il y a ${hours} ${hours === 1 ? 'heure' : 'heures'}`;
+  };
+  
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -113,6 +125,17 @@ function Dashboard() {
         console.error('Error fetching 30-day expenses chart:', err);
       }
     };
+
+    const fetchRecentActivity = async () => {
+      try {
+        const res = await getRecentActivity();
+        setRecentActivity(res.data);
+      } catch (err) {
+        console.error('Error fetching recent activity:', err);
+      }
+    };
+    
+    fetchRecentActivity();
     fetchInventoryChartData();
     fetchSalesChartData();
     fetchExpensesChartData();
@@ -163,12 +186,19 @@ function Dashboard() {
 
 
         <DashboardCard title="Activités récentes" delay={0.6}>
-          <ul className="activity-list">
-            <li>Nouveau stock ajouté - Il y a 2 heures</li>
-            <li>Nouvelle vente enregistrée - Il y a 4 heures</li>
-            <li>Mise à jour de l'inventaire - Il y a 5 heures</li>
-          </ul>
-        </DashboardCard>
+        <ul className="activity-list">
+          {recentActivity.length === 0 ? (
+            <li>Aucune activité récente</li>
+          ) : (
+            recentActivity.map((activity, i) => (
+              <li key={i}>
+                {activity.type} – {formatTimeAgo(activity.created_at)}
+              </li>
+            ))
+          )}
+        </ul>
+      </DashboardCard>
+
 
 
 
